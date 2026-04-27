@@ -10,10 +10,11 @@ import {
   LogOut,
   Sun,
 } from "lucide-react";
+import { useTheme } from "@/contexts/ThemeContext";
 
 export function Sidebar() {
   const [activeIcon, setActiveIcon] = useState("chat");
-  const [isDark, setIsDark] = useState(false);
+  const { isDark, toggleTheme } = useTheme();
 
   const icons = [
     { id: "chat", Icon: MessageSquare, label: "Chat" },
@@ -48,8 +49,8 @@ export function Sidebar() {
       {/* Bottom Icons */}
       <div className="flex flex-col gap-4">
         <button
-          onClick={() => setIsDark(!isDark)}
-          title="Toggle theme"
+          onClick={toggleTheme}
+          title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
           className="rounded-lg p-3 text-white/70 transition-all hover:bg-white/10 hover:text-white"
         >
           {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}

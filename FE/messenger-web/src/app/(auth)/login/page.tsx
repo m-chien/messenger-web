@@ -25,9 +25,9 @@ export default function LoginPage() {
   ];
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-[600px] md:min-h-[700px]">
       {/* Left Panel - Features */}
-      <div className="hidden lg:flex w-1/2 bg-gradient-to-br from-[var(--bg-color)] to-[#d0e8e3] flex-col justify-center px-12 py-12">
+      <div className="hidden lg:flex w-1/2 bg-[var(--slim-sidebar-bg)] flex-col justify-center px-12 py-12">
         <div className="space-y-12">
           {/* Logo & Title */}
           <div>
@@ -35,9 +35,9 @@ export default function LoginPage() {
               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--primary-color)] shadow-lg">
                 <MessageCircle className="h-6 w-6 text-white" />
               </div>
-              <h1 className="text-4xl font-bold text-[#1a4d47]">ChatHub</h1>
+              <h1 className="text-4xl font-bold text-white">ChatHub</h1>
             </div>
-            <p className="text-[var(--text-muted)] text-lg leading-relaxed">
+            <p className="text-white/70 text-lg leading-relaxed">
               Kết nối ngay, trò chuyện vui. Nơi những cuộc hội thoại trở nên ý
               nghĩa và thú vị.
             </p>
@@ -50,10 +50,10 @@ export default function LoginPage() {
               return (
                 <div
                   key={index}
-                  className="flex items-center gap-3 bg-white rounded-full px-6 py-3 shadow-sm hover:shadow-md transition-shadow"
+                  className="flex items-center gap-3 bg-[var(--chat-bg)] rounded-[20px] px-6 py-3 shadow-sm hover:shadow-md transition-shadow"
                 >
                   <Icon className="h-5 w-5 text-[var(--primary-color)] flex-shrink-0" />
-                  <span className="text-[var(--text-color)] font-medium">
+                  <span className="text-[var(--feature-text-color)] font-medium">
                     {feature.text}
                   </span>
                 </div>
@@ -64,7 +64,7 @@ export default function LoginPage() {
       </div>
 
       {/* Right Panel - Login Form */}
-      <div className="w-full lg:w-1/2 bg-white flex items-center justify-center px-6 py-12">
+      <div className="w-full lg:w-1/2 bg-[var(--chat-bg)] flex items-center justify-center px-6 py-12">
         <div className="w-full max-w-md">
           {/* Title */}
           <h2 className="text-4xl font-bold text-[var(--text-color)] mb-2">
@@ -128,7 +128,7 @@ export default function LoginPage() {
           {/* Google Login Button */}
           <button
             onClick={handleGoogleLogin}
-            className="w-full flex items-center justify-center gap-2 rounded-lg border-2 border-[var(--border-color)] bg-white px-4 py-3 font-semibold text-[var(--text-color)] transition-all hover:bg-[var(--sidebar-bg)] hover:border-[var(--primary-color)]"
+            className="w-full flex items-center justify-center gap-2 rounded-lg border-2 border-[var(--border-color)] bg-[var(--chat-bg)] px-4 py-3 font-semibold text-[var(--text-color)] transition-all hover:bg-[var(--sidebar-bg)] hover:border-[var(--primary-color)]"
           >
             <img
               src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
