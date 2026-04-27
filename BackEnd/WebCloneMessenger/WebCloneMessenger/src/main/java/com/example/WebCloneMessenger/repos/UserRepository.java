@@ -1,0 +1,11 @@
+package com.example.WebCloneMessenger.repos;
+
+import com.example.WebCloneMessenger.Model.User;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+
+public interface UserRepository extends JpaRepository<User, Integer> {
+    User findByEmail(String email);
+
+    User findByProviderIdAndProvider(String providerId, String provider);
+}

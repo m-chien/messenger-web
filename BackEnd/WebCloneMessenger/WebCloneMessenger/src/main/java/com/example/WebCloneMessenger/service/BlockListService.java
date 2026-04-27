@@ -1,0 +1,92 @@
+package com.example.WebCloneMessenger.service;
+
+import com.example.WebCloneMessenger.DTO.BlockListDTO;
+import com.example.WebCloneMessenger.Model.BlockList;
+import com.example.WebCloneMessenger.Model.User;
+import com.example.WebCloneMessenger.events.BeforeDeleteUser;
+import com.example.WebCloneMessenger.mapper.BlockListMapper;
+import com.example.WebCloneMessenger.repos.BlockListRepository;
+import com.example.WebCloneMessenger.repos.UserRepository;
+import com.example.WebCloneMessenger.Exception.NotFoundException;
+import com.example.WebCloneMessenger.Exception.ReferencedException;
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.event.EventListener;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+
+@Service
+@RequiredArgsConstructor
+public class BlockListService {
+
+    private final BlockListRepository blockListRepository;
+    private final UserRepository userRepository;
+    private final BlockListMapper blockListMapper;
+
+
+    public List<BlockListDTO> findAll() {
+        final List<BlockList> blockLists = blockListRepository.findAll(Sort.by("id"));
+        return blockLists.stream()
+                .map(blockListMapper::toDto)
+                .toList();
+    }
+
+    public BlockListDTO get(final Integer id) {
+        return blockListRepository.findById(id)
+                .map(blockListMapper::toDto)
+                .orElseThrow(NotFoundException::new);
+    }
+
+    public Integer create(final BlockListDTO blockListDTO) {
+        final BlockList blockList = blockListMapper.toEntity(blockListDTO);
+        mapReq(blockListDTO, blockList);
+        return blockListRepository.save(blockList).getId();
+    }
+
+    public void update(final Integer id, final BlockListDTO blockListDTO) {
+        final BlockList blockList = blockListRepository.findById(id)
+                .orElseThrow(NotFoundException::new);
+        blockListMapper.toEntity(blockListDTO);
+        mapReq(blockListDTO, blockList);
+        blockListRepository.save(blockList);
+    }
+
+    public void delete(final Integer id) {
+        final BlockList blockList = blockListRepository.findById(id)
+                .orElseThrow(NotFoundException::new);
+        blockListRepository.delete(blockList);
+    }
+
+    private void mapReq(final BlockListDTO blockListDTO, final BlockList blockList) {
+        final User blocker = blockListDTO.getBlocker() == null ? null : userRepository.findById(blockListDTO.getBlocker())
+                .orElseThrow(() -> new NotFoundException("blocker not found"));
+        blockList.setBlocker(blocker);
+        final User blocked = blockListDTO.getBlocked() == null ? null : userRepository.findById(blockListDTO.getBlocked())
+                .orElseThrow(() -> new NotFoundException("blocked not found"));
+        blockList.setBlocked(blocked);
+    }
+
+    @EventListener(BeforeDeleteUser.class)
+    public void on(final BeforeDeleteUser event) {
+        final ReferencedException referencedException = new ReferencedException();
+        final BlockList blockerBlockList = blockListRepository.findFirstByBlockerId(event.getId());
+        if (blockerBlockList != null) {
+            referencedException.setKey("user.blockList.blocker.referenced");
+            referencedException.addParam(blockerBlockList.getId());
+            throw referencedException;
+        }
+        final BlockList blockedBlockList = blockListRepository.findFirstByBlockedId(event.getId());
+        if (blockedBlockList != null) {
+            referencedException.setKey("user.blockList.blocked.referenced");
+            referencedException.addParam(blockedBlockList.getId());
+            throw referencedException;
+        }
+    }
+
+    public boolean checkBlock(String id, int targetUserId) {
+        Integer currentUserId = Integer.parseInt(id);
+        return blockListRepository.existsByBlocker_IdAndBlocked_Id(currentUserId, targetUserId);
+    }
+}

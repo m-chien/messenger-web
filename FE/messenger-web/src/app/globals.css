@@ -1,0 +1,27 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@layer base {
+  :root {
+    --bg-color: #e4efe9;
+    --text-color: #1c2b33;
+    --text-muted: #96a4a0;
+    --sidebar-bg: #f4f8f7;
+    --slim-sidebar-bg: #3c635d;
+    --chat-bg: #ffffff;
+    --bubble-me: #e5efed;
+    --bubble-other: #ffffff;
+    --text-color-me: #1c2b33;
+    --border-color: #e6eae9;
+    --primary-color: #eb6b4d;
+    --active-chat-bg: #dcece8;
+  }
+
+  body {
+    @apply bg-[var(--bg-color)] text-[var(--text-color)];
+  }
+
+  html {
+    @apply font-sans;
+  }
+}
