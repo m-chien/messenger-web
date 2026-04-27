@@ -1,6 +1,10 @@
-# Messenger Clone Project
+<h1 align="center">💬 Messenger Clone</h1>
 
-Một ứng dụng nhắn tin thời gian thực được lấy cảm hứng từ Facebook Messenger.
+<p align="center">
+  Một ứng dụng nhắn tin thời gian thực được lấy cảm hứng từ Facebook Messenger.</b>
+</p>
+
+<hr/>
 
 ## 🚀 Công nghệ sử dụng
 
