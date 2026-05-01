@@ -18,35 +18,35 @@ export function ResizablePanel({
   maxWidth = 70,
 }: ResizablePanelProps) {
   const [leftWidth, setLeftWidth] = useState(defaultWidth);
+  const [isDragging, setIsDragging] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
-  const isDraggingRef = useRef(false);
 
   const handleMouseDown = () => {
-    isDraggingRef.current = true;
+    setIsDragging(true);
     document.body.style.userSelect = "none";
     document.body.style.cursor = "col-resize";
   };
 
-  const handleMouseMove = (e: MouseEvent) => {
-    if (!isDraggingRef.current || !containerRef.current) return;
-
-    const container = containerRef.current;
-    const containerWidth = container.offsetWidth;
-    const newLeftWidth = (e.clientX / containerWidth) * 100;
-
-    if (newLeftWidth >= minWidth && newLeftWidth <= maxWidth) {
-      setLeftWidth(newLeftWidth);
-    }
-  };
-
-  const handleMouseUp = () => {
-    isDraggingRef.current = false;
-    document.body.style.userSelect = "auto";
-    document.body.style.cursor = "auto";
-  };
-
   useEffect(() => {
-    if (isDraggingRef.current) {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isDragging || !containerRef.current) return;
+
+      const container = containerRef.current;
+      const containerWidth = container.offsetWidth;
+      const newLeftWidth = (e.clientX / containerWidth) * 100;
+
+      if (newLeftWidth >= minWidth && newLeftWidth <= maxWidth) {
+        setLeftWidth(newLeftWidth);
+      }
+    };
+
+    const handleMouseUp = () => {
+      setIsDragging(false);
+      document.body.style.userSelect = "auto";
+      document.body.style.cursor = "auto";
+    };
+
+    if (isDragging) {
       document.addEventListener("mousemove", handleMouseMove);
       document.addEventListener("mouseup", handleMouseUp);
 
@@ -55,7 +55,7 @@ export function ResizablePanel({
         document.removeEventListener("mouseup", handleMouseUp);
       };
     }
-  }, [leftWidth, minWidth, maxWidth]);
+  }, [isDragging, minWidth, maxWidth]);
 
   return (
     <div ref={containerRef} className="flex h-full w-full">
