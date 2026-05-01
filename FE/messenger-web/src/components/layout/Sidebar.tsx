@@ -12,8 +12,12 @@ import {
 } from "lucide-react";
 import { useTheme } from "@/contexts/ThemeContext";
 
-export function Sidebar() {
-  const [activeIcon, setActiveIcon] = useState("chat");
+interface SidebarProps {
+  activeTab: string;
+  onTabChange: (tab: string) => void;
+}
+
+export function Sidebar({ activeTab, onTabChange }: SidebarProps) {
   const { isDark, toggleTheme } = useTheme();
 
   const icons = [
@@ -30,10 +34,10 @@ export function Sidebar() {
         {icons.map(({ id, Icon, label }) => (
           <button
             key={id}
-            onClick={() => setActiveIcon(id)}
+            onClick={() => onTabChange(id)}
             title={label}
             className={`rounded-lg p-3 transition-all ${
-              activeIcon === id
+              activeTab === id
                 ? "bg-white/20 text-white shadow-md"
                 : "text-white/70 hover:text-white hover:bg-white/10"
             }`}

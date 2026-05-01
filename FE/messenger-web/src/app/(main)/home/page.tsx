@@ -6,6 +6,7 @@ import { Header } from "@/components/layout/Header";
 import { ChatList } from "@/components/chat/ChatList";
 import { ChatArea } from "@/components/chat/ChatArea";
 import { ResizablePanel } from "@/components/layout/ResizablePanel";
+import { UserSettings } from "@/components/user/UserSettings";
 
 const mockChats = [
   {
@@ -26,6 +27,7 @@ const mockChats = [
 ];
 
 export default function HomePage() {
+  const [activeTab, setActiveTab] = useState("chat");
   const [selectedChatId, setSelectedChatId] = useState("1");
 
   const selectedChat = mockChats.find((chat) => chat.id === selectedChatId);
@@ -33,26 +35,32 @@ export default function HomePage() {
   return (
     <div className="flex h-screen bg-[var(--bg-color)]">
       {/* Slim Sidebar */}
-      <Sidebar />
+      <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
 
-      {/* Main Content Area with Resizable Panels */}
+      {/* Main Content Area */}
       <div className="flex flex-1 flex-col overflow-hidden">
-        {/* Resizable Chat List & Message Area */}
-        <div className="flex-1 overflow-hidden">
-          
-          <ResizablePanel
-            defaultWidth={30}
-            minWidth={20}
-            maxWidth={70}
-            rightPanel={<ChatArea selectedChat={selectedChat} />}
-          > 
-            <Header /> 
-            <ChatList
-              selectedChatId={selectedChatId}
-              onSelectChat={setSelectedChatId}
-            />
-          </ResizablePanel>
-        </div>
+        {activeTab === "chat" ? (
+          <div className="flex-1 overflow-hidden">
+            <ResizablePanel
+              defaultWidth={30}
+              minWidth={20}
+              maxWidth={70}
+              rightPanel={<ChatArea selectedChat={selectedChat} />}
+            >
+              <Header />
+              <ChatList
+                selectedChatId={selectedChatId}
+                onSelectChat={setSelectedChatId}
+              />
+            </ResizablePanel>
+          </div>
+        ) : activeTab === "user" ? (
+          <UserSettings />
+        ) : (
+          <div className="flex flex-1 items-center justify-center text-[var(--text-muted)]">
+            <p className="text-xl font-medium">This section is under development</p>
+          </div>
+        )}
       </div>
     </div>
   );
