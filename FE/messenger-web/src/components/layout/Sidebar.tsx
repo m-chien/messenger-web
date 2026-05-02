@@ -3,12 +3,12 @@
 import { useState } from "react";
 import {
   MessageSquare,
-  Grid3x3,
   User,
   Settings,
   Moon,
   LogOut,
   Sun,
+  UserPlus,
 } from "lucide-react";
 import { useTheme } from "@/contexts/ThemeContext";
 
@@ -22,8 +22,8 @@ export function Sidebar({ activeTab, onTabChange }: SidebarProps) {
 
   const icons = [
     { id: "chat", Icon: MessageSquare, label: "Chat" },
-    { id: "grid", Icon: Grid3x3, label: "Grid" },
     { id: "user", Icon: User, label: "User" },
+    { id: "add-friend", Icon: UserPlus, label: "Add Friend" },
     { id: "settings", Icon: Settings, label: "Settings" },
   ];
 

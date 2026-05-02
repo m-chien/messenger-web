@@ -7,6 +7,8 @@ import { ChatList } from "@/components/chat/ChatList";
 import { ChatArea } from "@/components/chat/ChatArea";
 import { ResizablePanel } from "@/components/layout/ResizablePanel";
 import { UserSettings } from "@/components/user/UserSettings";
+import { SettingsPage } from "@/components/settings/SettingsPage";
+import { AddFriendPage } from "@/components/friends/AddFriendPage";
 
 const mockChats = [
   {
@@ -56,6 +58,10 @@ export default function HomePage() {
           </div>
         ) : activeTab === "user" ? (
           <UserSettings />
+        ) : activeTab === "settings" ? (
+          <SettingsPage />
+        ) : activeTab === "add-friend" ? (
+          <AddFriendPage />
         ) : (
           <div className="flex flex-1 items-center justify-center text-[var(--text-muted)]">
             <p className="text-xl font-medium">This section is under development</p>
