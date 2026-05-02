@@ -24,13 +24,13 @@ export function UserSettings() {
   ];
 
   return (
-    <div className="flex-1 overflow-y-auto bg-[var(--bg-color)] text-[var(--text-color)]">
+    <div className="flex-1 overflow-y-auto bg-[var(--chat-bg)] text-[var(--text-color)]">
       {/* Banner */}
       <div className="h-48 w-full bg-gradient-to-r from-pink-200 via-purple-200 to-blue-200 relative">
         {/* Profile Picture (Overlapping) */}
         <div className="absolute -bottom-16 left-12">
           <div className="relative group">
-            <div className="h-32 w-32 rounded-full border-4 border-[var(--bg-color)] overflow-hidden bg-gray-200">
+            <div className="h-32 w-32 rounded-full border-4 border-[var(--chat-bg)] overflow-hidden bg-gray-200">
               <img
                 src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=200&h=200"
                 alt="Profile"
