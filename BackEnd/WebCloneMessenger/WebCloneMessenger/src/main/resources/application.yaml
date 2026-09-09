@@ -17,7 +17,7 @@ spring:
           time_zone: Asia/Ho_Chi_Minh
   jackson:
     time-zone: Asia/Ho_Chi_Minh
-    date-format: yyyy-MM-dd
+    date-format: yyyy-MM-dd'T'HH:mm:ss
     serialization:
       write-dates-as-timestamps: false
   http:
@@ -39,7 +39,6 @@ google:
   clientId: "959381924356-5sdi5bunvmu825hfm75r13a5rktqv2uc.apps.googleusercontent.com"
 minio:
   url: http://localhost:9000
-  access-key: minioadmin
-  secret-key: minioadmin
+  access-key: admin
+  secret-key: admin123
   bucket: chat-attachments
-

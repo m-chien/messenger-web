@@ -2,6 +2,8 @@ package com.example.WebCloneMessenger.service;
 
 import io.minio.GetPresignedObjectUrlArgs;
 import io.minio.MinioClient;
+import io.minio.BucketExistsArgs;
+import io.minio.MakeBucketArgs;
 import io.minio.PutObjectArgs;
 import io.minio.http.Method;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +22,7 @@ public class FileUploadService {
 
     public String upload(MultipartFile file) {
         try {
+            ensureBucket();
             String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
 
             minioClient.putObject(
@@ -39,6 +42,10 @@ public class FileUploadService {
     }
     public String getPresignedUrl(String objectName) {
         try {
+            if (objectName == null || objectName.startsWith("http://") || objectName.startsWith("https://")) {
+                return objectName;
+            }
+
             return minioClient.getPresignedObjectUrl(
                     GetPresignedObjectUrlArgs.builder()
                             .bucket(BUCKET)
@@ -49,6 +56,17 @@ public class FileUploadService {
             );
         } catch (Exception e) {
             throw new RuntimeException("Không tạo được presigned url", e);
+        }
+    }
+
+    private void ensureBucket() throws Exception {
+        boolean exists = minioClient.bucketExists(
+                BucketExistsArgs.builder().bucket(BUCKET).build()
+        );
+        if (!exists) {
+            minioClient.makeBucket(
+                    MakeBucketArgs.builder().bucket(BUCKET).build()
+            );
         }
     }
 }

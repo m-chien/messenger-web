@@ -1,64 +1,51 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { MessageBubble } from "./MessageBubble";
 
 interface Message {
-  id: string;
+  id: string | number;
   content: string;
-  isOwn: boolean;
-  timestamp: string;
-  avatar?: string;
+  userId?: number;
+  dateSend?: string;
+  avatarUrl?: string;
+  isOwn?: boolean;
 }
 
-const mockMessages: Message[] = [
-  {
-    id: "1",
-    content: "Hey! How are you?",
-    isOwn: false,
-    timestamp: "10:30 AM",
-    avatar: "A",
-  },
-  {
-    id: "2",
-    content: "I'm doing great, thanks for asking!",
-    isOwn: true,
-    timestamp: "10:31 AM",
-  },
-  {
-    id: "3",
-    content: "Did you finish the project?",
-    isOwn: false,
-    timestamp: "10:32 AM",
-    avatar: "A",
-  },
-  {
-    id: "4",
-    content: "Almost done! Should be ready by tomorrow.",
-    isOwn: true,
-    timestamp: "10:33 AM",
-  },
-  {
-    id: "5",
-    content: "That's awesome! 🎉",
-    isOwn: false,
-    timestamp: "10:34 AM",
-    avatar: "A",
-  },
-];
+interface MessageListProps {
+  messages: Message[];
+  currentUserId?: number;
+}
 
-export function MessageList() {
+export function MessageList({ messages, currentUserId }: MessageListProps) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Tự động scroll xuống cuối khi có tin nhắn mới
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [messages]);
+
   return (
-    <div className="flex-1 overflow-y-auto bg-[var(--chat-bg)] px-6 py-4">
+    <div 
+      ref={scrollRef}
+      className="flex-1 overflow-y-auto bg-[var(--chat-bg)] px-6 py-4 scroll-smooth"
+    >
       <div className="flex flex-col gap-4">
-        {mockMessages.map((message) => (
-          <MessageBubble
-            key={message.id}
-            content={message.content}
-            isOwn={message.isOwn}
-            timestamp={message.timestamp}
-            avatar={message.avatar}
-          />
-        ))}
+        {messages.map((message, index) => {
+          const isOwn = message.userId === currentUserId || message.isOwn;
+          
+          return (
+            <MessageBubble
+              key={message.id || index}
+              content={message.content}
+              isOwn={isOwn}
+              timestamp={message.dateSend ? new Date(message.dateSend).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : "Now"}
+              avatar={message.avatarUrl || "A"}
+            />
+          );
+        })}
       </div>
     </div>
   );

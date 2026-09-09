@@ -7,9 +7,10 @@ interface ChatHeaderProps {
   onlineStatus: "online" | "offline" | "away";
   avatar: string;
   onToggleProfile?: () => void;
+  onVideoCall?: () => void;
 }
 
-export function ChatHeader({ name, onlineStatus, avatar, onToggleProfile }: ChatHeaderProps) {
+export function ChatHeader({ name, onlineStatus, avatar, onToggleProfile, onVideoCall }: ChatHeaderProps) {
   const statusColors = {
     online: "bg-green-500",
     offline: "bg-gray-400",
@@ -47,7 +48,10 @@ export function ChatHeader({ name, onlineStatus, avatar, onToggleProfile }: Chat
         <button className="rounded-lg p-2 text-[var(--text-muted)] transition-colors hover:bg-[var(--sidebar-bg)] hover:text-[var(--text-color)]">
           <Phone className="h-5 w-5" />
         </button>
-        <button className="rounded-lg p-2 text-[var(--text-muted)] transition-colors hover:bg-[var(--sidebar-bg)] hover:text-[var(--text-color)]">
+        <button 
+          onClick={onVideoCall}
+          className="rounded-lg p-2 text-[var(--text-muted)] transition-colors hover:bg-[var(--sidebar-bg)] hover:text-[var(--text-color)]"
+        >
           <Video className="h-5 w-5" />
         </button>
         <button 

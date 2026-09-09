@@ -16,7 +16,6 @@ import com.example.WebCloneMessenger.Exception.AppException;
 import com.example.WebCloneMessenger.Exception.ErrorCode;
 import com.example.WebCloneMessenger.Exception.ReferencedException;
 import jakarta.annotation.PostConstruct;
-import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,6 +60,7 @@ public class MessageService {
     }
 
 
+    @Transactional
     public MessageResponseDTO create(final MessageDTO messageDTO) {
         if (messageDTO.getUserId() == null) {
             throw new AppException(ErrorCode.USER_NOT_FOUND);
@@ -75,6 +75,7 @@ public class MessageService {
                 .orElseThrow(() -> new AppException(ErrorCode.CHAT_ROOM_NOT_FOUND));
 
         Message message = messageMapper.toEntity(messageDTO);
+        message.setId(null);
         message.setIdUser(user);
         message.setChatroom(chatRoom);
         message.setDateSend(LocalDateTime.now());
@@ -87,7 +88,7 @@ public class MessageService {
         }
 
         Message savedMessage = messageRepository.save(message);
-        messageRepository.flush();
+        System.out.println("Saved message id: " + savedMessage.toString());
 
         List<AttachmentDTO> attachmentDTOs = new ArrayList<>();
         if (messageDTO.getAttachments() != null) {

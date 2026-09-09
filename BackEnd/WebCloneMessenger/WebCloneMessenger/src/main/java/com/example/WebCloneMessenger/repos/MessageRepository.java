@@ -23,7 +23,7 @@ public interface MessageRepository extends JpaRepository<Message, Integer> {
             "u.id AS userId, u.isOnline AS isOnline, u.name AS userName, u.AvatarURL AS avatarUrl " +
             "FROM message m JOIN [user] u ON m.iduser = u.id " +
             "WHERE m.idchatroom = :chatRoomId " +
-            "ORDER BY m.DateSend ASC",
+            "ORDER BY m.DateSend ASC, m.id ASC",
             nativeQuery = true)
         // ⚠️ Kiểu trả về là List của Interface Projection
     List<MessageDetailProjection> findMessageDetailsByChatRoomId(@Param("chatRoomId") Integer chatRoomId);

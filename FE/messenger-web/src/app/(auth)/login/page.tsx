@@ -3,14 +3,37 @@
 import { useState } from "react";
 import { MessageCircle, Bell, Lock, Globe, Sparkles } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useLogin } from "@/hooks/useUsers";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const router = useRouter();
+
+  const { mutate: login, isPending: isLoading } = useLogin();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle login
+    setError("");
+
+    login(
+      { email, password },
+      {
+        onSuccess: (data) => {
+          localStorage.setItem("token", data.token);
+          localStorage.setItem("refreshToken", data.refreshToken);
+          localStorage.setItem("user", JSON.stringify(data.user));
+          router.push("/");
+        },
+        onError: (err: any) => {
+          setError(
+            err.response?.data?.message || err.message || "Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin."
+          );
+        },
+      }
+    );
   };
 
   const handleGoogleLogin = () => {
@@ -76,6 +99,12 @@ export default function LoginPage() {
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4 mb-6">
+            {error && (
+              <div className="p-3 bg-red-500/10 border border-red-500/50 rounded-lg text-red-500 text-sm text-center">
+                {error}
+              </div>
+            )}
+
             {/* Email Input */}
             <div>
               <label className="block text-xs font-bold text-[var(--text-muted)] uppercase mb-2">
@@ -109,10 +138,15 @@ export default function LoginPage() {
             {/* Login Button */}
             <button
               type="submit"
-              className="w-full rounded-full bg-gradient-to-r from-[var(--primary-color)] to-orange-500 py-3 font-bold text-white shadow-lg transition-all hover:shadow-xl hover:brightness-110 active:scale-95 flex items-center justify-center gap-2"
+              disabled={isLoading}
+              className={`w-full rounded-full bg-gradient-to-r from-[var(--primary-color)] to-orange-500 py-3 font-bold text-white shadow-lg transition-all flex items-center justify-center gap-2 ${
+                isLoading
+                  ? "opacity-70 cursor-not-allowed"
+                  : "hover:shadow-xl hover:brightness-110 active:scale-95"
+              }`}
             >
               <Lock className="h-5 w-5" />
-              Đăng Nhập
+              {isLoading ? "Đang đăng nhập..." : "Đăng Nhập"}
             </button>
           </form>
 

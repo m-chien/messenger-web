@@ -3,12 +3,16 @@
 import { useState } from "react";
 import { Send, Plus, Paperclip, Smile, Mic } from "lucide-react";
 
-export function MessageInput() {
+interface MessageInputProps {
+  onSendMessage?: (content: string) => void;
+}
+
+export function MessageInput({ onSendMessage }: MessageInputProps) {
   const [message, setMessage] = useState("");
 
   const handleSend = () => {
-    if (message.trim()) {
-      // Handle send
+    if (message.trim() && onSendMessage) {
+      onSendMessage(message.trim());
       setMessage("");
     }
   };

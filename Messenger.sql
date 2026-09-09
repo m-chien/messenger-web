@@ -1,4 +1,4 @@
-﻿IF EXISTS (SELECT * FROM sys.databases WHERE name = 'Messenger')
+IF EXISTS (SELECT * FROM sys.databases WHERE name = 'Messenger')
 BEGIN
     USE master; -- Chuyển sang cơ sở dữ liệu master để có thể xóa được cơ sở dữ liệu khác
     ALTER DATABASE Messenger SET SINGLE_USER WITH ROLLBACK IMMEDIATE; -- Ngắt mọi kết nối
@@ -342,7 +342,8 @@ begin
 	set crU.LastSeenMessageID = i.ID
 	from ChatRoom_User crU join inserted i on crU.IDChatroom = i.IdChatroom and crU.IDUser = i.IDUser
 end
-	
+go
+
 select * from Message
 --lấy danh sách các tin  nhắn ở các phòng mà user chưa đọc
 select * 

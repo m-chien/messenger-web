@@ -1,10 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ChatHeader } from "./ChatHeader";
 import { MessageList } from "./MessageList";
 import { MessageInput } from "./MessageInput";
 import { ChatProfile } from "./ChatProfile";
+import { useSocket } from "@/hooks/useSocket";
+import { VideoCallModal } from "./VideoCallModal";
 
 interface ChatAreaProps {
   selectedChat?: {
@@ -17,6 +19,23 @@ interface ChatAreaProps {
 
 export function ChatArea({ selectedChat }: ChatAreaProps) {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isVideoCallOpen, setIsVideoCallOpen] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState<number>();
+
+  useEffect(() => {
+    const userStr = localStorage.getItem("user");
+    if (userStr) {
+      try {
+        const user = JSON.parse(userStr);
+        setCurrentUserId(user.id);
+      } catch (e) {
+        console.error("Failed to parse user from localStorage", e);
+      }
+    }
+  }, []);
+
+  const roomId = selectedChat ? parseInt(selectedChat.id) : undefined;
+  const { messages, sendMessage, isConnected } = useSocket(roomId);
 
   if (!selectedChat) {
     return (
@@ -35,13 +54,14 @@ export function ChatArea({ selectedChat }: ChatAreaProps) {
           avatar={selectedChat.avatar}
           onlineStatus={selectedChat.onlineStatus}
           onToggleProfile={() => setIsProfileOpen(!isProfileOpen)}
+          onVideoCall={() => setIsVideoCallOpen(true)}
         />
 
         {/* Messages */}
-        <MessageList />
+        <MessageList messages={messages} currentUserId={currentUserId} />
 
         {/* Input */}
-        <MessageInput />
+        <MessageInput onSendMessage={(content) => sendMessage(content, 'text')} />
       </div>
 
       {/* Profile Sidebar */}
@@ -55,6 +75,15 @@ export function ChatArea({ selectedChat }: ChatAreaProps) {
           onClose={() => setIsProfileOpen(false)}
         />
       </div>
+
+      {/* Video Call Modal */}
+      {isVideoCallOpen && roomId && currentUserId && (
+        <VideoCallModal
+          roomId={roomId}
+          currentUserId={currentUserId}
+          onClose={() => setIsVideoCallOpen(false)}
+        />
+      )}
     </div>
   );
 }

@@ -13,6 +13,7 @@ public interface MessageMapper {
     MessageDTO toDto(Message message);
 
     // Ngược lại: ignore vì DTO chỉ có id (không có entity)
+    @Mapping(target = "id", ignore = true)
     @Mapping(target = "idUser", ignore = true)
     @Mapping(target = "chatroom", ignore = true)
     @Mapping(target = "replyMessage", ignore = true)
