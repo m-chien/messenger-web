@@ -3,20 +3,65 @@
 import { useState } from "react";
 import { MessageCircle, Bell, Lock, Globe, Sparkles } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { authService } from "@/services/authService";
 
 export default function RegisterPage() {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle registration
-  };
+    setError("");
+    setSuccess("");
 
-  const handleGoogleSignUp = () => {
-    // Handle Google sign up
+    if (!fullName || !email || !password || !confirmPassword) {
+      setError("Vui lòng điền đầy đủ tất cả các trường.");
+      return;
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setError("Email không đúng định dạng.");
+      return;
+    }
+
+    if (password.length < 6) {
+      setError("Mật khẩu phải có ít nhất 6 ký tự.");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setError("Mật khẩu xác nhận không trùng khớp.");
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      await authService.register({
+        name: fullName,
+        email: email,
+        pass: password,
+      });
+
+      setSuccess("Tạo tài khoản thành công! Đang chuyển hướng đến trang đăng nhập...");
+      setTimeout(() => {
+        router.push("/login");
+      }, 1500);
+    } catch (err: any) {
+      console.error("Register error:", err);
+      setError(
+        err.response?.data?.message ||
+          "Đăng ký thất bại. Email có thể đã được sử dụng."
+      );
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const features = [
@@ -78,6 +123,17 @@ export default function RegisterPage() {
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4 mb-6">
+            {error && (
+              <div className="p-3 bg-red-500/10 border border-red-500/50 rounded-lg text-red-500 text-sm text-center">
+                {error}
+              </div>
+            )}
+            {success && (
+              <div className="p-3 bg-emerald-500/10 border border-emerald-500/50 rounded-lg text-emerald-500 text-sm text-center">
+                {success}
+              </div>
+            )}
+
             {/* Full Name Input */}
             <div>
               <label className="block text-xs font-bold text-[var(--text-muted)] uppercase mb-2">
@@ -141,34 +197,17 @@ export default function RegisterPage() {
             {/* Sign Up Button */}
             <button
               type="submit"
-              className="w-full rounded-full bg-gradient-to-r from-[var(--primary-color)] to-orange-500 py-3 font-bold text-white shadow-lg transition-all hover:shadow-xl hover:brightness-110 active:scale-95 flex items-center justify-center gap-2"
+              disabled={isLoading}
+              className={`w-full rounded-full bg-gradient-to-r from-[var(--primary-color)] to-orange-500 py-3 font-bold text-white shadow-lg transition-all flex items-center justify-center gap-2 ${
+                isLoading
+                  ? "opacity-70 cursor-not-allowed"
+                  : "hover:shadow-xl hover:brightness-110 active:scale-95"
+              }`}
             >
               <Lock className="h-5 w-5" />
-              Tạo Tài Khoản
+              {isLoading ? "Đang tạo tài khoản..." : "Tạo Tài Khoản"}
             </button>
           </form>
-
-          {/* Divider */}
-          <div className="flex items-center gap-3 mb-6">
-            <div className="flex-1 border-t border-[var(--border-color)]" />
-            <span className="text-xs text-[var(--text-muted)] font-medium">
-              hoặc tiếp tục với
-            </span>
-            <div className="flex-1 border-t border-[var(--border-color)]" />
-          </div>
-
-          {/* Google Sign Up Button */}
-          <button
-            onClick={handleGoogleSignUp}
-            className="w-full flex items-center justify-center gap-2 rounded-lg border-2 border-[var(--border-color)] bg-[var(--chat-bg)] px-4 py-3 font-semibold text-[var(--text-color)] transition-all hover:bg-[var(--sidebar-bg)] hover:border-[var(--primary-color)]"
-          >
-            <img
-              src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
-              alt="Google"
-              style={{ width: "20px", height: "20px" }}
-            />
-            Đăng ký bằng Google
-          </button>
 
           {/* Links */}
           <div className="mt-8 space-y-2 text-center">

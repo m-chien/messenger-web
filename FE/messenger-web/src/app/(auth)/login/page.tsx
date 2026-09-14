@@ -4,40 +4,57 @@ import { useState } from "react";
 import { MessageCircle, Bell, Lock, Globe, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useLogin } from "@/hooks/useUsers";
+import { useAuth } from "@/contexts/AuthContext";
+import { GoogleLogin } from "@react-oauth/google";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const { login, loginGoogle } = useAuth();
 
-  const { mutate: login, isPending: isLoading } = useLogin();
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
-    login(
-      { email, password },
-      {
-        onSuccess: (data) => {
-          localStorage.setItem("token", data.token);
-          localStorage.setItem("refreshToken", data.refreshToken);
-          localStorage.setItem("user", JSON.stringify(data.user));
-          router.push("/");
-        },
-        onError: (err: any) => {
-          setError(
-            err.response?.data?.message || err.message || "Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin."
-          );
-        },
-      }
-    );
+    if (!email || !password) {
+      setError("Vui lòng điền đầy đủ email và mật khẩu.");
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      await login(email, password);
+      router.push("/home");
+    } catch (err: any) {
+      console.error("Login failed:", err);
+      setError(
+        err.response?.data?.message ||
+          "Đăng nhập thất bại. Vui lòng kiểm tra lại email hoặc mật khẩu."
+      );
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleGoogleLogin = () => {
-    // Handle Google login
+  const handleGoogleSuccess = async (credentialResponse: any) => {
+    if (!credentialResponse.credential) {
+      setError("Không nhận được token từ Google.");
+      return;
+    }
+    setIsLoading(true);
+    setError("");
+    try {
+      await loginGoogle(credentialResponse.credential);
+      router.push("/home");
+    } catch (err: any) {
+      console.error("Google login failed:", err);
+      setError("Đăng nhập bằng Google thất bại. Vui lòng thử lại.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const features = [
@@ -160,17 +177,16 @@ export default function LoginPage() {
           </div>
 
           {/* Google Login Button */}
-          <button
-            onClick={handleGoogleLogin}
-            className="w-full flex items-center justify-center gap-2 rounded-lg border-2 border-[var(--border-color)] bg-[var(--chat-bg)] px-4 py-3 font-semibold text-[var(--text-color)] transition-all hover:bg-[var(--sidebar-bg)] hover:border-[var(--primary-color)]"
-          >
-            <img
-              src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
-              alt="Google"
-              style={{ width: "20px", height: "20px" }}
+          <div className="flex justify-center w-full">
+            <GoogleLogin
+              onSuccess={handleGoogleSuccess}
+              onError={() => setError("Đăng nhập Google thất bại")}
+              useOneTap={false}
+              theme="outline"
+              size="large"
+              width="100%"
             />
-            Đăng nhập bằng Google
-          </button>
+          </div>
 
           {/* Links */}
           <div className="mt-8 space-y-2 text-center">
