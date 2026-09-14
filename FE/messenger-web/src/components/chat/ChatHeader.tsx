@@ -2,6 +2,7 @@
 
 import { Phone, Video, Info } from "lucide-react";
 import { ChatRoom } from "@/types/chat";
+import { formatMediaUrl } from "@/services/api";
 
 interface ChatHeaderProps {
   selectedChat: ChatRoom;
@@ -16,11 +17,7 @@ export function ChatHeader({
   onAudioCall,
   onVideoCall,
 }: ChatHeaderProps) {
-  const avatarUrl = selectedChat.logo
-    ? selectedChat.logo.startsWith("http")
-      ? selectedChat.logo
-      : `http://localhost:8080${selectedChat.logo}`
-    : "";
+  const avatarUrl = formatMediaUrl(selectedChat.logo);
 
   const isOnline = selectedChat.hasOnlineUser === 1;
 

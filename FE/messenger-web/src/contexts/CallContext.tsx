@@ -136,7 +136,22 @@ export function CallProvider({ children }: { children: React.ReactNode }) {
 
       const pc = createWebRTC({
         onTrack: (remoteStream) => {
-          setRemoteStreams((prev) => ({ ...prev, [targetUserId]: remoteStream }));
+          console.log("🎥 [CallContext] onTrack received for target:", targetUserId, {
+            audioTracks: remoteStream.getAudioTracks().length,
+            videoTracks: remoteStream.getVideoTracks().length,
+          });
+          setRemoteStreams((prev) => {
+            const existing = prev[targetUserId];
+            if (existing) {
+              remoteStream.getTracks().forEach((track) => {
+                if (!existing.getTracks().some((t) => t.id === track.id)) {
+                  existing.addTrack(track);
+                }
+              });
+              return { ...prev, [targetUserId]: new MediaStream(existing.getTracks()) };
+            }
+            return { ...prev, [targetUserId]: new MediaStream(remoteStream.getTracks()) };
+          });
         },
         onIce: (candidate) => {
           sendSignal({
@@ -199,6 +214,8 @@ export function CallProvider({ children }: { children: React.ReactNode }) {
               });
             } else {
               console.log(`User ${fromUserId} rejected call`);
+              ringtone.stopAllTones();
+              endCallCleanup();
             }
             break;
           }
@@ -211,7 +228,14 @@ export function CallProvider({ children }: { children: React.ReactNode }) {
             const answer = await makeAnswer(pc, data.data);
 
             const queue = iceQueue.current[fromUserId] || [];
-            await flushCandidates(pc, queue);
+            console.log(`🚀 [CallContext] Flushing ${queue.length} queued ICE candidates on offer`);
+            for (const c of queue) {
+              try {
+                await pc.addIceCandidate(new RTCIceCandidate(c));
+              } catch (e) {
+                console.error("Error adding queued ice candidate:", e);
+              }
+            }
             delete iceQueue.current[fromUserId];
 
             sendSignal({
@@ -235,7 +259,14 @@ export function CallProvider({ children }: { children: React.ReactNode }) {
             if (pc) {
               await applyAnswer(pc, data.data);
               const queue = iceQueue.current[fromUserId] || [];
-              await flushCandidates(pc, queue);
+              console.log(`🚀 [CallContext] Flushing ${queue.length} queued ICE candidates on answer`);
+              for (const c of queue) {
+                try {
+                  await pc.addIceCandidate(new RTCIceCandidate(c));
+                } catch (e) {
+                  console.error("Error adding queued ice candidate:", e);
+                }
+              }
               delete iceQueue.current[fromUserId];
             }
             break;
@@ -244,11 +275,18 @@ export function CallProvider({ children }: { children: React.ReactNode }) {
           case "candidate": {
             if (data.toUserId && String(data.toUserId) !== String(userId)) return;
 
+            if (!iceQueue.current[fromUserId]) {
+              iceQueue.current[fromUserId] = [];
+            }
+
             const pc = peersRef.current[fromUserId];
-            if (pc) {
-              await addCandidate(pc, data.data, []);
+            if (pc && pc.remoteDescription && pc.remoteDescription.type) {
+              try {
+                await pc.addIceCandidate(new RTCIceCandidate(data.data));
+              } catch (err) {
+                console.error("Error adding ice candidate:", err);
+              }
             } else {
-              if (!iceQueue.current[fromUserId]) iceQueue.current[fromUserId] = [];
               iceQueue.current[fromUserId].push(data.data);
             }
             break;
@@ -294,6 +332,17 @@ export function CallProvider({ children }: { children: React.ReactNode }) {
     setCallState("outgoing");
 
     ringtone.playCallingTone();
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: type === "VIDEO",
+        audio: true,
+      });
+      localStreamRef.current = stream;
+      setLocalStream(stream);
+    } catch (err) {
+      console.warn("Could not get local media preview on startCall:", err);
+    }
 
     sendSignal({
       type: "call-request",

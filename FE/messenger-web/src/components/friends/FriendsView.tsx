@@ -18,6 +18,7 @@ import { blockService } from "@/services/blockService";
 import { useAuth } from "@/contexts/AuthContext";
 import { FriendDetailDTO, FriendRequestDetailDTO } from "@/types/friend";
 import { User } from "@/types/user";
+import { formatMediaUrl } from "@/services/api";
 
 interface FriendsViewProps {
   defaultTab?: "friends" | "requests" | "discover";
@@ -312,11 +313,7 @@ export function FriendsView({
                 {filteredFriends.length > 0 ? (
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                     {filteredFriends.map((friend) => {
-                      const avatarUrl = friend.avatarUrl
-                        ? friend.avatarUrl.startsWith("http")
-                          ? friend.avatarUrl
-                          : `http://localhost:8080${friend.avatarUrl}`
-                        : "";
+                      const avatarUrl = formatMediaUrl(friend.avatarUrl);
 
                       return (
                         <div
@@ -399,11 +396,7 @@ export function FriendsView({
                 {filteredRequests.length > 0 ? (
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                     {filteredRequests.map((req) => {
-                      const avatarUrl = req.senderAvatarUrl
-                        ? req.senderAvatarUrl.startsWith("http")
-                          ? req.senderAvatarUrl
-                          : `http://localhost:8080${req.senderAvatarUrl}`
-                        : "";
+                      const avatarUrl = formatMediaUrl(req.senderAvatarUrl);
 
                       return (
                         <div
@@ -485,11 +478,7 @@ export function FriendsView({
                 {filteredDiscover.length > 0 ? (
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                     {filteredDiscover.map((u) => {
-                      const avatarUrl = u.avatarUrl
-                        ? u.avatarUrl.startsWith("http")
-                          ? u.avatarUrl
-                          : `http://localhost:8080${u.avatarUrl}`
-                        : "";
+                      const avatarUrl = formatMediaUrl(u.avatarUrl);
 
                       const isSent = sentRequests.has(u.id);
 

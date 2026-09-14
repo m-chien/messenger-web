@@ -5,6 +5,8 @@ import { MoreHorizontal, Trash2, UserMinus, ShieldAlert } from "lucide-react";
 import { ChatRoom } from "@/types/chat";
 import { timeAgo } from "@/hooks/useTimeAgo";
 
+import { formatMediaUrl } from "@/services/api";
+
 interface ChatItemProps {
   conv: ChatRoom;
   active?: boolean;
@@ -24,11 +26,7 @@ export function ChatItem({
 }: ChatItemProps) {
   const [showMenu, setShowMenu] = useState(false);
 
-  const avatarUrl = conv.logo
-    ? conv.logo.startsWith("http")
-      ? conv.logo
-      : `http://localhost:8080${conv.logo}`
-    : "";
+  const avatarUrl = formatMediaUrl(conv.logo);
 
   const handleMenuClick = (e: React.MouseEvent) => {
     e.stopPropagation();

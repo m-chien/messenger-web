@@ -6,6 +6,8 @@ import { vi } from "date-fns/locale";
 import { MessageResponseDTO, AttachmentDTO } from "@/types/message";
 import { FileText, Download } from "lucide-react";
 
+import { formatMediaUrl } from "@/services/api";
+
 interface MessageBubbleProps {
   message: MessageResponseDTO;
   isMe: boolean;
@@ -34,16 +36,10 @@ export function MessageBubble({
     }
   };
 
-  const avatarUrl = message.avatarUrl
-    ? message.avatarUrl.startsWith("http")
-      ? message.avatarUrl
-      : `http://localhost:8080${message.avatarUrl}`
-    : "";
+  const avatarUrl = formatMediaUrl(message.avatarUrl);
 
   const renderAttachment = (att: AttachmentDTO) => {
-    const fileUrl = att.fileUrl?.startsWith("http")
-      ? att.fileUrl
-      : `http://localhost:8080${att.fileUrl}`;
+    const fileUrl = formatMediaUrl(att.fileUrl);
 
     if (att.fileType?.startsWith("image/")) {
       return (

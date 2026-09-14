@@ -25,7 +25,15 @@ const WebSocketContext = createContext<WebSocketContextType>({
 
 export const useWebSocket = () => useContext(WebSocketContext);
 
-const WS_URL = process.env.NEXT_PUBLIC_WS_URL || "http://localhost:8080/ws";
+export const getWsUrl = (): string => {
+  if (process.env.NEXT_PUBLIC_WS_URL) {
+    return process.env.NEXT_PUBLIC_WS_URL;
+  }
+  if (typeof window !== "undefined") {
+    return `${window.location.origin}/ws`;
+  }
+  return "http://localhost:8080/ws";
+};
 
 export function WebSocketProvider({ children }: { children: React.ReactNode }) {
   const { token, user } = useAuth();
@@ -61,7 +69,7 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
     }
 
     const client = new Client({
-      webSocketFactory: () => new SockJS(WS_URL),
+      webSocketFactory: () => new SockJS(getWsUrl()),
       connectHeaders: {
         Authorization: `Bearer ${token}`,
       },

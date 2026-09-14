@@ -1,14 +1,36 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
 
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080";
+export const getApiBaseUrl = (): string => {
+  if (process.env.NEXT_PUBLIC_API_BASE_URL) {
+    return process.env.NEXT_PUBLIC_API_BASE_URL;
+  }
+  if (typeof window !== "undefined") {
+    return window.location.origin;
+  }
+  return "http://localhost:8080";
+};
+
+export const formatMediaUrl = (url?: string | null): string => {
+  if (!url) return "";
+  if (url.startsWith("http://") || url.startsWith("https://")) {
+    return url;
+  }
+  const base = getApiBaseUrl();
+  return `${base}${url.startsWith("/") ? "" : "/"}${url}`;
+};
 
 export const nonAuthApi = axios.create({
-  baseURL: API_BASE_URL,
+  withCredentials: true,
+});
+
+nonAuthApi.interceptors.request.use((config: InternalAxiosRequestConfig) => {
+  if (!config.baseURL) {
+    config.baseURL = getApiBaseUrl();
+  }
+  return config;
 });
 
 const api = axios.create({
-  baseURL: API_BASE_URL,
   withCredentials: true,
   headers: {
     "Content-Type": "application/json",
@@ -18,10 +40,11 @@ const api = axios.create({
 let refreshPromise: Promise<string> | null = null;
 
 export const refreshAccessToken = async (): Promise<string> => {
+  const baseUrl = getApiBaseUrl();
   if (!refreshPromise) {
     refreshPromise = axios
       .post(
-        `${API_BASE_URL}/users/refresh`,
+        `${baseUrl}/users/refresh`,
         {},
         { withCredentials: true }
       )
@@ -46,6 +69,9 @@ export const refreshAccessToken = async (): Promise<string> => {
 };
 
 api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
+  if (!config.baseURL) {
+    config.baseURL = getApiBaseUrl();
+  }
   if (typeof window !== "undefined") {
     const token =
       sessionStorage.getItem("accessToken") || localStorage.getItem("token");

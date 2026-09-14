@@ -10,7 +10,11 @@ export function useRingtone() {
       ringtoneRef.current = new Audio("/sounds/ringtone.mp3");
       ringtoneRef.current.loop = true;
     }
-    ringtoneRef.current.play().catch((e) => console.warn("Ringtone play error:", e));
+    ringtoneRef.current.play().catch((e: any) => {
+      if (e.name !== "AbortError") {
+        console.warn("Ringtone play error:", e);
+      }
+    });
   };
 
   const playCallingTone = () => {
@@ -19,7 +23,11 @@ export function useRingtone() {
       callingRef.current = new Audio("/sounds/calling.mp3");
       callingRef.current.loop = true;
     }
-    callingRef.current.play().catch((e) => console.warn("Calling tone play error:", e));
+    callingRef.current.play().catch((e: any) => {
+      if (e.name !== "AbortError") {
+        console.warn("Calling tone play error:", e);
+      }
+    });
   };
 
   const stopRingtone = () => {

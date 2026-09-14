@@ -30,20 +30,40 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const savedUser = authService.getCurrentUser();
         let savedToken = authService.getAccessToken();
 
-        if (savedToken) {
+        if (savedToken && savedUser) {
           try {
             savedToken = await refreshAccessToken();
-          } catch {
-            savedToken = authService.getAccessToken();
+            setToken(savedToken);
+            setUser(savedUser);
+          } catch (refreshErr: any) {
+            console.warn(
+              "Could not refresh token on init:",
+              refreshErr?.message || refreshErr
+            );
+            // If the server rejected the token (401/403), the session is definitely expired
+            if (
+              refreshErr?.response?.status === 401 ||
+              refreshErr?.response?.status === 403
+            ) {
+              sessionStorage.removeItem("accessToken");
+              localStorage.removeItem("token");
+              localStorage.removeItem("user");
+              setToken(null);
+              setUser(null);
+            } else {
+              // If it's a network error (server is offline), preserve local state
+              setToken(savedToken);
+              setUser(savedUser);
+            }
           }
-        }
-
-        if (savedToken) {
-          setToken(savedToken);
-          setUser(savedUser);
+        } else {
+          setToken(null);
+          setUser(null);
         }
       } catch (err) {
         console.error("Auth init error:", err);
+        setToken(null);
+        setUser(null);
       } finally {
         setIsLoading(false);
       }

@@ -4,17 +4,15 @@ import React from "react";
 import { Phone, PhoneOff, Video } from "lucide-react";
 import { useCall } from "@/contexts/CallContext";
 
+import { formatMediaUrl } from "@/services/api";
+
 export default function CallModal() {
   const { callState, callType, chatRoom, acceptCall, rejectCall, endCall } = useCall();
 
-  if (callState === "idle" || callState === "incall") return null;
+  if (callState !== "incoming") return null;
 
-  const isIncoming = callState === "incoming";
-  const avatarUrl = chatRoom?.logo
-    ? chatRoom.logo.startsWith("http")
-      ? chatRoom.logo
-      : `http://localhost:8080${chatRoom.logo}`
-    : "";
+  const isIncoming = true;
+  const avatarUrl = formatMediaUrl(chatRoom?.logo);
   const displayName = chatRoom?.name || "Unknown User";
 
   return (

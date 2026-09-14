@@ -23,6 +23,8 @@ import { blockService } from "@/services/blockService";
 import { useAuth } from "@/contexts/AuthContext";
 import { User } from "@/types/user";
 
+import { formatMediaUrl } from "@/services/api";
+
 interface ProfileViewProps {
   userData?: any;
   isOtherProfile?: boolean;
@@ -64,11 +66,7 @@ export function ProfileView({
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const avatarUrl = user?.avatarUrl
-    ? user.avatarUrl.startsWith("http")
-      ? user.avatarUrl
-      : `http://localhost:8080${user.avatarUrl}`
-    : user?.avatar || "";
+  const avatarUrl = formatMediaUrl(user?.avatarUrl || user?.avatar);
 
   // Dynamic dominant color extraction
   useEffect(() => {
@@ -506,11 +504,7 @@ export function ProfileView({
                           <div className="h-12 w-12 rounded-full overflow-hidden bg-gradient-to-tr from-indigo-500 to-purple-500 text-white flex items-center justify-center font-bold text-sm shadow-xs">
                             {mf.avatarUrl ? (
                               <img
-                                src={
-                                  mf.avatarUrl.startsWith("http")
-                                    ? mf.avatarUrl
-                                    : `http://localhost:8080${mf.avatarUrl}`
-                                }
+                                src={formatMediaUrl(mf.avatarUrl)}
                                 alt={mf.name}
                                 className="h-full w-full object-cover"
                               />

@@ -2,6 +2,7 @@
 
 import { X, Image as ImageIcon, Bell, FileText, User } from "lucide-react";
 import { ChatRoom } from "@/types/chat";
+import { formatMediaUrl } from "@/services/api";
 
 interface ChatProfileProps {
   selectedChat: ChatRoom;
@@ -14,11 +15,7 @@ export function ChatProfile({
   onClose,
   onViewUserProfile,
 }: ChatProfileProps) {
-  const avatarUrl = selectedChat.logo
-    ? selectedChat.logo.startsWith("http")
-      ? selectedChat.logo
-      : `http://localhost:8080${selectedChat.logo}`
-    : "";
+  const avatarUrl = formatMediaUrl(selectedChat.logo);
 
   const isOnline = selectedChat.hasOnlineUser === 1;
 

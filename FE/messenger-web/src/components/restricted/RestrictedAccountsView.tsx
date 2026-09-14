@@ -7,6 +7,8 @@ import { userService } from "@/services/userService";
 import { useAuth } from "@/contexts/AuthContext";
 import { User } from "@/types/user";
 
+import { formatMediaUrl } from "@/services/api";
+
 interface RestrictedUser extends User {
   blockId: number;
   blockedDate?: string;
@@ -143,11 +145,7 @@ export function RestrictedAccountsView({
         ) : filteredUsers.length > 0 ? (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {filteredUsers.map((user) => {
-              const avatarUrl = user.avatarUrl
-                ? user.avatarUrl.startsWith("http")
-                  ? user.avatarUrl
-                  : `http://localhost:8080${user.avatarUrl}`
-                : "";
+              const avatarUrl = formatMediaUrl(user.avatarUrl);
 
               return (
                 <div
